@@ -6,12 +6,14 @@ import {
   Col,
   Popconfirm,
   Row,
+  Slider,
   Space,
   Table,
   Tabs,
 } from "antd";
 import CSVReader, { IFileInfo } from "react-csv-reader";
 import { dataRowToDataSource } from "../../utils/dataRowToDataSource";
+import { DiscretizationSection } from "../shared/DiscretizationSection/DiscretizationSection";
 
 export const Modul1 = () => {
   const dataContext = React.useContext(DataContext);
@@ -123,6 +125,12 @@ export const Modul1 = () => {
           <Tabs items={createdLegends} />
         </Col>
       </Row>
+      <div
+        style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
+      />
+
+      <DiscretizationSection />
+
       <div
         style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
       />

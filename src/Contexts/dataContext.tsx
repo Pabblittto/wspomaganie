@@ -6,6 +6,13 @@ import {
   MapLegend,
   stringColumnToNumeric,
 } from "./utils/stringColumnToNumeric";
+import { detectMaxMinValues } from "./utils/detectMaxMinValues";
+
+export type MinMaxRecord = {
+  index: number;
+  min: number;
+  max: number;
+};
 
 export type DataRow = string[];
 
@@ -19,6 +26,7 @@ export type DataContextType = {
   cellTypes: CellTypes[];
   columnTitles: string[];
   legend: CreatedLegend[];
+  maxMinValues: MinMaxRecord[];
 };
 
 export const DataContext = React.createContext<DataContextType>({
@@ -35,6 +43,7 @@ export const DataContext = React.createContext<DataContextType>({
   cellTypes: [],
   columnTitles: [],
   legend: [],
+  maxMinValues: [],
 });
 
 export const DataContextProvider: React.FC<any> = (props) => {
@@ -43,6 +52,7 @@ export const DataContextProvider: React.FC<any> = (props) => {
   const [columnTitles, setColumnTitles] = useState<string[]>([]);
   const [firstColumnTitles, setFirstColumnTitles] = useState<boolean>(true);
   const [createdLegends, setCreatedLegends] = useState<CreatedLegend[]>([]);
+  const [maxMinValues, setMaxMinValues] = useState<MinMaxRecord[]>([]);
 
   const loadData = (data: DataRow[]) => {
     if (firstColumnTitles) {
@@ -53,7 +63,9 @@ export const DataContextProvider: React.FC<any> = (props) => {
       setColumnTitles(createFakeTitles(data[0].length));
       setData(data);
     }
-    setCellTypes(detectColumnTypes(data));
+    const columnTypes = detectColumnTypes(data);
+    setCellTypes(columnTypes);
+    setMaxMinValues(detectMaxMinValues(data, columnTypes));
   };
 
   const setFirstRowTitlesOnChange = (state: boolean) => {
@@ -64,7 +76,9 @@ export const DataContextProvider: React.FC<any> = (props) => {
     if (data != null) {
       const result = stringColumnToNumeric(dataIndex, data);
       setData(result.newData);
-      setCellTypes(detectColumnTypes(result.newData));
+      const columnTypes = detectColumnTypes(result.newData);
+      setCellTypes(columnTypes);
+      setMaxMinValues(detectMaxMinValues(result.newData, columnTypes));
       setCreatedLegends((prev) => {
         return [
           ...prev,
@@ -84,6 +98,7 @@ export const DataContextProvider: React.FC<any> = (props) => {
         setFirstRowTitlesOnChange,
         stringDataToNumeric,
         legend: createdLegends,
+        maxMinValues,
       }}
     >
       {props.children}
