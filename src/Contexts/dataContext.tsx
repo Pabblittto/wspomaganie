@@ -1,15 +1,24 @@
 import React, { useState } from "react";
-import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-backend-webgl";
 import { CellTypes, detectColumnTypes } from "./utils/detectColumnTypes";
 import { createFakeTitles } from "./utils/utils";
+import {
+  MapLegend,
+  stringColumnToNumeric,
+} from "./utils/stringColumnToNumeric";
 
 export type DataRow = string[];
+
+export type CreatedLegend = { columnIndex: number; legend: MapLegend };
 
 export type DataContextType = {
   loadData: (data: DataRow[]) => void;
   setFirstRowTitlesOnChange: (state: boolean) => void;
+  stringDataToNumeric: (dataIndex: number) => void;
   data: DataRow[] | null;
+  cellTypes: CellTypes[];
+  columnTitles: string[];
+  legend: CreatedLegend[];
 };
 
 export const DataContext = React.createContext<DataContextType>({
@@ -20,6 +29,12 @@ export const DataContext = React.createContext<DataContextType>({
   setFirstRowTitlesOnChange: (state: boolean) => {
     throw "Not implemented";
   },
+  stringDataToNumeric: (index: number) => {
+    throw "Not implemented";
+  },
+  cellTypes: [],
+  columnTitles: [],
+  legend: [],
 });
 
 export const DataContextProvider: React.FC<any> = (props) => {
@@ -27,6 +42,7 @@ export const DataContextProvider: React.FC<any> = (props) => {
   const [cellTypes, setCellTypes] = useState<CellTypes[]>([]);
   const [columnTitles, setColumnTitles] = useState<string[]>([]);
   const [firstColumnTitles, setFirstColumnTitles] = useState<boolean>(true);
+  const [createdLegends, setCreatedLegends] = useState<CreatedLegend[]>([]);
 
   const loadData = (data: DataRow[]) => {
     if (firstColumnTitles) {
@@ -37,20 +53,37 @@ export const DataContextProvider: React.FC<any> = (props) => {
       setColumnTitles(createFakeTitles(data[0].length));
       setData(data);
     }
-    detectColumnTypes(data[2]);
-    setCellTypes(detectColumnTypes(data[2]));
+    setCellTypes(detectColumnTypes(data));
   };
 
-  const setFirstColumnTitlesOnChange = (state: boolean) => {
+  const setFirstRowTitlesOnChange = (state: boolean) => {
     setFirstColumnTitles(state);
+  };
+
+  const stringDataToNumeric = (dataIndex: number) => {
+    if (data != null) {
+      const result = stringColumnToNumeric(dataIndex, data);
+      setData(result.newData);
+      setCellTypes(detectColumnTypes(result.newData));
+      setCreatedLegends((prev) => {
+        return [
+          ...prev,
+          { columnIndex: dataIndex, legend: result.mappingLegend },
+        ];
+      });
+    }
   };
 
   return (
     <DataContext.Provider
       value={{
+        columnTitles,
+        cellTypes,
         loadData,
         data,
-        setFirstRowTitlesOnChange: setFirstColumnTitlesOnChange,
+        setFirstRowTitlesOnChange,
+        stringDataToNumeric,
+        legend: createdLegends,
       }}
     >
       {props.children}

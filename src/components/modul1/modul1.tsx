@@ -1,16 +1,17 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { DataContext } from "../../Contexts/dataContext";
 import {
   Button,
   Checkbox,
   Col,
-  Input,
+  Popconfirm,
   Row,
   Space,
-  Upload,
-  UploadFile,
+  Table,
+  Tabs,
 } from "antd";
 import CSVReader, { IFileInfo } from "react-csv-reader";
+import { dataRowToDataSource } from "../../utils/dataRowToDataSource";
 
 export const Modul1 = () => {
   const dataContext = React.useContext(DataContext);
@@ -20,9 +21,41 @@ export const Modul1 = () => {
     fileInfo: IFileInfo,
     originalFile?: File
   ) => {
-    console.log(data);
-    console.log(fileInfo);
+    dataContext.loadData(data);
   };
+
+  const mappedData = useMemo(
+    () =>
+      dataContext.data
+        ? [
+            {
+              key: "types",
+              ...dataRowToDataSource(dataContext.cellTypes),
+            },
+            ...dataContext.data.map((row, index) => ({
+              key: index,
+              ...dataRowToDataSource(row),
+            })),
+          ]
+        : [],
+    [dataContext.data, dataContext.cellTypes]
+  );
+
+  const columns = useMemo(
+    () =>
+      dataContext.columnTitles.map((title, index) => ({
+        title: title,
+        dataIndex: index.toString(),
+        key: index,
+      })),
+    [dataContext.columnTitles]
+  );
+
+  const createdLegends = dataContext.legend.map((val, idx) => ({
+    key: idx.toString(),
+    label: `Column ${val.columnIndex}`,
+    children: JSON.stringify(val.legend),
+  }));
 
   return (
     <div>
@@ -43,7 +76,56 @@ export const Modul1 = () => {
           </Checkbox>
         </Col>
       </Row>
-      <Row></Row>
+      <div
+        style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
+      />
+      <Row
+        style={{
+          maxHeight: "400px",
+          overflow: "scroll",
+          paddingBottom: "30px",
+        }}
+      >
+        <Table columns={columns} dataSource={mappedData} sticky />
+      </Row>
+      <Row>
+        <Col style={{ padding: "10px" }} span={5}>
+          <h3>Tekstowe na numeryczne</h3>
+          {dataContext.cellTypes.filter((t) => t === "string").length === 0 && (
+            <div>Brak kolumn tekstowych</div>
+          )}
+          {dataContext.cellTypes.map((type, index) => {
+            if (type === "string") {
+              return (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    padding: "10px",
+                  }}
+                >
+                  <div>{"Kolumna: " + dataContext.columnTitles[index]}</div>
+                  <Popconfirm
+                    title={"Czy na pewno?"}
+                    onConfirm={() => dataContext.stringDataToNumeric(index)}
+                  >
+                    <Button>Zamień</Button>
+                  </Popconfirm>
+                </div>
+              );
+            } else {
+              return <></>;
+            }
+          })}
+        </Col>
+        <Col span={19}>
+          <Tabs items={createdLegends} />
+        </Col>
+      </Row>
+      <div
+        style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
+      />
     </div>
   );
 };
