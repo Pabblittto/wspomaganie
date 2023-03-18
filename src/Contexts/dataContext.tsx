@@ -29,6 +29,7 @@ export type DataContextType = {
   legend: CreatedLegend[];
   maxMinValues: MinMaxRecord[];
   discretizateColumn: (columnIndex: number, pointsArray: number[]) => void;
+  setUpNewData: (data: DataRow[]) => void;
 };
 
 export const DataContext = React.createContext<DataContextType>({
@@ -48,6 +49,9 @@ export const DataContext = React.createContext<DataContextType>({
   maxMinValues: [],
   discretizateColumn: (columnIndex: number, pointsArray: number[]) => {
     throw "Not implemented";
+  },
+  setUpNewData: (data: DataRow[]) => {
+    throw "Not implemented ";
   },
 });
 
@@ -80,10 +84,7 @@ export const DataContextProvider: React.FC<any> = (props) => {
   const stringDataToNumeric = (dataIndex: number) => {
     if (data != null) {
       const result = stringColumnToNumeric(dataIndex, data);
-      setData(result.newData);
-      const columnTypes = detectColumnTypes(result.newData);
-      setCellTypes(columnTypes);
-      setMaxMinValues(detectMaxMinValues(result.newData, columnTypes));
+      setUpNewData(result.newData);
       setCreatedLegends((prev) => {
         return [
           ...prev,
@@ -97,6 +98,10 @@ export const DataContextProvider: React.FC<any> = (props) => {
     if (!data) return;
 
     const newData = discretizeColumn(columnIndex, pointsArray, data);
+    setUpNewData(newData);
+  };
+
+  const setUpNewData = (newData: DataRow[]) => {
     setData(newData);
     const columnTypes = detectColumnTypes(newData);
     setCellTypes(columnTypes);
@@ -115,6 +120,7 @@ export const DataContextProvider: React.FC<any> = (props) => {
         legend: createdLegends,
         maxMinValues,
         discretizateColumn,
+        setUpNewData,
       }}
     >
       {props.children}

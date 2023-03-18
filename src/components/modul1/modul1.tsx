@@ -6,7 +6,6 @@ import {
   Col,
   Popconfirm,
   Row,
-  Slider,
   Space,
   Table,
   Tabs,
@@ -14,6 +13,7 @@ import {
 import CSVReader, { IFileInfo } from "react-csv-reader";
 import { dataRowToDataSource } from "../../utils/dataRowToDataSource";
 import { DiscretizationSection } from "../shared/DiscretizationSection/DiscretizationSection";
+import { Standarization } from "../shared/Standarization/Standarization";
 
 export const Modul1 = () => {
   const dataContext = React.useContext(DataContext);
@@ -90,6 +90,9 @@ export const Modul1 = () => {
       >
         <Table columns={columns} dataSource={mappedData} sticky />
       </Row>
+      <div
+        style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
+      />
       <Row>
         <Col style={{ padding: "10px" }} span={5}>
           <h3>Tekstowe na numeryczne</h3>
@@ -128,9 +131,11 @@ export const Modul1 = () => {
       <div
         style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
       />
-
       <DiscretizationSection />
-
+      <div
+        style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
+      />
+      <Standarization />
       <div
         style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
       />
