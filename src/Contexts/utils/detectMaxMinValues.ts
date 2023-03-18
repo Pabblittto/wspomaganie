@@ -16,10 +16,6 @@ export const detectMaxMinValues = (
       });
     }
   }
-  console.log("Init");
-  console.log(result);
-  console.log("First row");
-  console.log(firstRow);
 
   for (const row of data) {
     for (const record of result) {

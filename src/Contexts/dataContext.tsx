@@ -7,6 +7,7 @@ import {
   stringColumnToNumeric,
 } from "./utils/stringColumnToNumeric";
 import { detectMaxMinValues } from "./utils/detectMaxMinValues";
+import { discretizeColumn } from "./utils/discretizateColumn";
 
 export type MinMaxRecord = {
   index: number;
@@ -27,6 +28,7 @@ export type DataContextType = {
   columnTitles: string[];
   legend: CreatedLegend[];
   maxMinValues: MinMaxRecord[];
+  discretizateColumn: (columnIndex: number, pointsArray: number[]) => void;
 };
 
 export const DataContext = React.createContext<DataContextType>({
@@ -44,6 +46,9 @@ export const DataContext = React.createContext<DataContextType>({
   columnTitles: [],
   legend: [],
   maxMinValues: [],
+  discretizateColumn: (columnIndex: number, pointsArray: number[]) => {
+    throw "Not implemented";
+  },
 });
 
 export const DataContextProvider: React.FC<any> = (props) => {
@@ -88,6 +93,16 @@ export const DataContextProvider: React.FC<any> = (props) => {
     }
   };
 
+  const discretizateColumn = (columnIndex: number, pointsArray: number[]) => {
+    if (!data) return;
+
+    const newData = discretizeColumn(columnIndex, pointsArray, data);
+    setData(newData);
+    const columnTypes = detectColumnTypes(newData);
+    setCellTypes(columnTypes);
+    setMaxMinValues(detectMaxMinValues(newData, columnTypes));
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -99,6 +114,7 @@ export const DataContextProvider: React.FC<any> = (props) => {
         stringDataToNumeric,
         legend: createdLegends,
         maxMinValues,
+        discretizateColumn,
       }}
     >
       {props.children}

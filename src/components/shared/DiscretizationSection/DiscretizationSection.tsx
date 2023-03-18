@@ -1,6 +1,6 @@
 import React from "react";
 import { DataContext } from "../../../Contexts/dataContext";
-import { Button, Col, Input, InputNumber, Row, Tabs } from "antd";
+import { Button, Col, Input, InputNumber, Row, Tabs, message } from "antd";
 
 type TabcontentProps = {
   columIndex: number;
@@ -10,12 +10,14 @@ type TabcontentProps = {
 };
 
 const TabContent: React.FC<TabcontentProps> = (props) => {
+  const dataContext = React.useContext(DataContext);
   const [cells, setCells] = React.useState<
     {
       futureValue: number;
       point: number;
     }[]
   >([{ futureValue: 0, point: (props.maxVal + props.minVal) / 2 }]);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const onAddCellClick = () => {
     setCells((prev) => {
@@ -49,11 +51,42 @@ const TabContent: React.FC<TabcontentProps> = (props) => {
     });
   };
 
+  const onApply = () => {
+    const valsFromCells = cells.map((c) => c.point);
+    const followingPoints = [props.minVal, ...valsFromCells, props.maxVal];
+
+    let prevPoint = 0;
+    for (const [index, point] of followingPoints.entries()) {
+      if (index === 0) {
+        prevPoint = point;
+      } else {
+        if (prevPoint > point) {
+          // Show isse
+          messageApi.open({
+            type: "error",
+            content: "Liczby nie są rosnące, a powinny",
+          });
+          return;
+        }
+        prevPoint = point;
+      }
+    }
+    dataContext.discretizateColumn(props.columIndex, valsFromCells);
+    messageApi.open({
+      type: "success",
+      content: "Sukces!",
+    });
+  };
+
   return (
     <>
+      {contextHolder}
       <h5>{props.columnName}</h5>
       <Button onClick={onAddCellClick}>Dodaj element</Button>
       <Button onClick={onRemoveCellClick}>Usuń element</Button>
+      <Button type="primary" onClick={onApply}>
+        Aplikuj
+      </Button>
       <div
         style={{
           display: "flex",
@@ -81,7 +114,10 @@ const TabContent: React.FC<TabcontentProps> = (props) => {
             </div>
           </div>
         ))}
-        <div>{`DO ${props.maxVal}`}</div>
+        <div>
+          <div>{cells[cells.length - 1].futureValue + 1}</div>
+          <div>{`DO ${props.maxVal}`}</div>
+        </div>
       </div>
     </>
   );
