@@ -15,6 +15,7 @@ import { dataRowToDataSource } from "../../utils/dataRowToDataSource";
 import { DiscretizationSection } from "../shared/DiscretizationSection/DiscretizationSection";
 import { Standarization } from "../shared/Standarization/Standarization";
 import { RangeChanger } from "../shared/RangeChanger/RangeChanger";
+import { Histograms } from "../shared/Histograms/Histograms";
 
 export const Modul1 = () => {
   const dataContext = React.useContext(DataContext);
@@ -141,6 +142,13 @@ export const Modul1 = () => {
         style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
       />
       <RangeChanger />
+      <div
+        style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
+      />
+      <Histograms />
+      <div
+        style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
+      />
     </div>
   );
 };
