@@ -16,6 +16,7 @@ import { DiscretizationSection } from "../shared/DiscretizationSection/Discretiz
 import { Standarization } from "../shared/Standarization/Standarization";
 import { RangeChanger } from "../shared/RangeChanger/RangeChanger";
 import { Histograms } from "../shared/Histograms/Histograms";
+import { Chart2D } from "../shared/Chart2D/Chart2D";
 
 export const Modul1 = () => {
   const dataContext = React.useContext(DataContext);
@@ -149,6 +150,8 @@ export const Modul1 = () => {
       <div
         style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
       />
+      <h3>Chart 2D</h3>
+      <Chart2D />
     </div>
   );
 };
