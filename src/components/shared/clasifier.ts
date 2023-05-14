@@ -243,7 +243,7 @@ export const runClasifier = (data: DataContextType) => {
     // Best cut musi być ogarnięty wewnątrz fora i być pprzypisany do zmiennej, w innym wypadku jest chuj
 
     if (bestCut === null) {
-      // TODO: jeeli nie ma cięcia, to zrób jakie kolwiek cięcie
+      // TODO: trzeba to wypelnic
     }
 
     if (bestCut !== undefined) {
@@ -282,7 +282,12 @@ export const runClasifier = (data: DataContextType) => {
     }
   }
 
-  console.log(newTable);
+  console.log(
+    newTable.map((row) => ({
+      vec: row.vector.join(","),
+      kl: row.class,
+    }))
+  );
   console.log(cuts);
   return { newTable, cuts };
 };
