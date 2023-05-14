@@ -17,6 +17,7 @@ import { Standarization } from "../shared/Standarization/Standarization";
 import { RangeChanger } from "../shared/RangeChanger/RangeChanger";
 import { Histograms } from "../shared/Histograms/Histograms";
 import { Chart2D } from "../shared/Chart2D/Chart2D";
+import { runClasifier } from "../shared/clasifier";
 
 export const Modul1 = () => {
   const dataContext = React.useContext(DataContext);
@@ -152,6 +153,7 @@ export const Modul1 = () => {
       />
       <h3>Chart 2D</h3>
       <Chart2D />
+      <Button onClick={() => runClasifier(dataContext)}> Klasyfikator</Button>
     </div>
   );
 };

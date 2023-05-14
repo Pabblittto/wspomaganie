@@ -105,8 +105,6 @@ export const Histograms = () => {
     ),
   }));
 
-  console.log(chartData);
-
   return (
     <div>
       <h3>Histogramy</h3>

@@ -28,6 +28,5 @@ export const detectMaxMinValues = (
     }
   }
 
-  console.log(result);
   return result;
 };
