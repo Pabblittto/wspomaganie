@@ -17,12 +17,13 @@ import { Standarization } from "../shared/Standarization/Standarization";
 import { RangeChanger } from "../shared/RangeChanger/RangeChanger";
 import { Histograms } from "../shared/Histograms/Histograms";
 import { Chart2D } from "../shared/Chart2D/Chart2D";
-import { runClasifier } from "../shared/clasifier";
+import { ClasifierResult, runClasifier } from "../shared/clasifier";
 import { JSONTree } from "react-json-tree";
+import { ClasifyRecord } from "../shared/ClasifyRecord/ClasifyRecord";
 
 export const Modul1 = () => {
   const dataContext = React.useContext(DataContext);
-  const [result, setResult] = useState<any>({});
+  const [result, setResult] = useState<ClasifierResult>(null);
 
   const onFileLoaded = (
     data: any[],
@@ -161,6 +162,10 @@ export const Modul1 = () => {
       <div style={{ textAlign: "left" }}>
         <JSONTree data={result} />
       </div>
+      <div
+        style={{ marginTop: "20px", backgroundColor: "gray", height: "5px" }}
+      />
+      <ClasifyRecord clasifierRes={result} />
     </div>
   );
 };

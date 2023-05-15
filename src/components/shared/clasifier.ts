@@ -33,6 +33,7 @@ export type Directions = "asc" | "desc";
  * Punkt cięcia
  */
 export type VectorCutData = {
+  className: string;
   columnName: string;
   value: number;
   /** asc - w stronę rosnącą, desc - w stronę malejącą */
@@ -49,7 +50,7 @@ export type NewRowType = {
 
 export const runClasifier = (data: DataContextType) => {
   if (!data.data) {
-    return [];
+    return null;
   }
 
   // Init new table:
@@ -478,3 +479,5 @@ export const runClasifier = (data: DataContextType) => {
   console.log(cuts);
   return { newTable, cuts, wronglyClasifiedPoints };
 };
+
+export type ClasifierResult = ReturnType<typeof runClasifier>;

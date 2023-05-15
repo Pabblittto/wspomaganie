@@ -36,6 +36,7 @@ export const createVectorCutData = (
       columnName,
       direction,
       value,
+      className,
     },
     points,
   };

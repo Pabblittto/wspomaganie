@@ -1,6 +1,6 @@
 import React from "react";
 import { DataContext } from "../../../Contexts/dataContext";
-import { Button, Col, Input, InputNumber, Row, Tabs, message } from "antd";
+import { Button, Col, InputNumber, Row, Tabs, message } from "antd";
 
 type TabcontentProps = {
   columIndex: number;
