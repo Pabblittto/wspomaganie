@@ -62,6 +62,7 @@ export const runClasifier = (data: DataContextType) => {
   }));
 
   const cuts: VectorCutData[] = [];
+  const wronglyClasifiedPoints: NewRowType[] = [];
 
   // Zrzutowane obiekty
   const dimentions: Array<Dimention> = [];
@@ -242,9 +243,195 @@ export const runClasifier = (data: DataContextType) => {
     }
     // Best cut musi być ogarnięty wewnątrz fora i być pprzypisany do zmiennej, w innym wypadku jest chuj
 
-    if (bestCut === null) {
-      // TODO: trzeba to wypelnic
+    /* ################################################## starting cutting when there is no cut */
+    if (bestCut === undefined) {
+      // When there is no best cut, take first best that will cut the most number  of points of one class
+      let pointToBeWronglyClasifiedBestCut: NewRowType[] = [];
+      //Iteracja po kazdej kolumnie bez klasy
+      for (const dimension of dimentions) {
+        let bestDescendingCut: CurrentBestCut | undefined;
+        let bestAscendingCut: CurrentBestCut | undefined;
+        let descendingClassCut: string | undefined = undefined;
+        /**
+         * Array of points that will be wrongly clasified because of the cut
+         */
+        let descendingCutWrongPointsCount: NewRowType[] = [];
+        const descendingPoints: NewRowType[] = [];
+        let lastVal = 0;
+        // Descending cut
+        for (let i = 0; i < dimension.values.length; i++) {
+          const val = dimension.values[i];
+          //Analize only if there is one class
+          if (val.classes.length === 1) {
+            if (
+              descendingClassCut === undefined ||
+              descendingClassCut === val.classes[0].name
+            ) {
+              descendingClassCut = val.classes[0].name; //Set first found class name
+              descendingPoints.push(...val.classes[0].points); // Save all points for a cut
+              lastVal = val.value;
+            } else {
+              // Met different class, so cutting is finished
+              bestDescendingCut = createVectorCutData(
+                descendingClassCut,
+                descendingPoints,
+                dimension.columnName,
+                "desc",
+                lastVal
+              );
+              break;
+            }
+          }
+          if (val.classes.length === 0) {
+            continue;
+          } else if (val.classes.length > 0) {
+            // This is first IF that
+            if (descendingClassCut === undefined) {
+              // If it is undefined, set class to most countable items
+              let classNameOfHighestCount = "";
+              let theMostCountedPoints: NewRowType[] = [];
+              for (const currClass of val.classes) {
+                if (currClass.points.length > theMostCountedPoints.length) {
+                  theMostCountedPoints = [...currClass.points];
+                  classNameOfHighestCount = currClass.name;
+                }
+              }
+              descendingClassCut = classNameOfHighestCount;
+              descendingPoints.push(...theMostCountedPoints);
+
+              //Count wrongly klasified points
+              for (const currClass of val.classes) {
+                if (currClass.name !== descendingClassCut)
+                  descendingCutWrongPointsCount.push(...currClass.points);
+              }
+              lastVal = val.value;
+            } else {
+              // If it is more than 2 and class is already set, cutting is finished
+              // Met many classes for point, so cutting is finished
+              bestDescendingCut = createVectorCutData(
+                descendingClassCut,
+                descendingPoints,
+                dimension.columnName,
+                "desc",
+                lastVal
+              );
+              break;
+            }
+          }
+          // For loop is finished, so cutting is finished if any
+          bestDescendingCut = createVectorCutData(
+            descendingClassCut,
+            descendingPoints,
+            dimension.columnName,
+            "desc",
+            lastVal
+          );
+        }
+
+        let ascendingClassCut: string | undefined = undefined;
+        const ascendingPoints: NewRowType[] = [];
+        /**
+         * Array of points that will be wrongly clasified because of the cut
+         */
+        let ascendingCutWrongPointsCount: NewRowType[] = [];
+        lastVal = 0;
+        // Ascending
+        for (let j = dimension.values.length - 1; j >= 0; j--) {
+          const val = dimension.values[j];
+          //Analize only if there is one class
+          if (val.classes.length === 1) {
+            if (
+              ascendingClassCut === undefined ||
+              ascendingClassCut === val.classes[0].name
+            ) {
+              ascendingClassCut = val.classes[0].name; //Set first found class name
+              ascendingPoints.push(...val.classes[0].points); // Save all points for a cut
+              lastVal = val.value;
+            } else {
+              // Met different class, so cutting is finished
+              bestAscendingCut = createVectorCutData(
+                ascendingClassCut,
+                ascendingPoints,
+                dimension.columnName,
+                "asc",
+                lastVal
+              );
+              break;
+            }
+          } else if (val.classes.length === 0) {
+            continue;
+          } else if (val.classes.length > 0) {
+            // This is first IF that
+            if (ascendingClassCut === undefined) {
+              // If it is undefined, set class to most countable items
+              let classNameOfHighestCount = "";
+              let theMostCountedPoints: NewRowType[] = [];
+              for (const currClass of val.classes) {
+                if (currClass.points.length > theMostCountedPoints.length) {
+                  theMostCountedPoints = [...currClass.points];
+                  classNameOfHighestCount = currClass.name;
+                }
+              }
+              ascendingClassCut = classNameOfHighestCount;
+              ascendingPoints.push(...theMostCountedPoints);
+
+              //Count wrongly klasified points
+              for (const currClass of val.classes) {
+                if (currClass.name !== ascendingClassCut)
+                  ascendingCutWrongPointsCount.push(...currClass.points);
+              }
+              lastVal = val.value;
+            } else {
+              // If it is more than 2 and class is already set, cutting is finished
+              // Met many classes for point, so cutting is finished
+              bestAscendingCut = createVectorCutData(
+                ascendingClassCut,
+                ascendingPoints,
+                dimension.columnName,
+                "asc",
+                lastVal
+              );
+              break;
+            }
+          }
+          // For loop is finished, so cutting is finished
+          bestAscendingCut = createVectorCutData(
+            ascendingClassCut,
+            ascendingPoints,
+            dimension.columnName,
+            "asc",
+            lastVal
+          );
+        }
+
+        // Choose best cut and save it to best cut value
+        if (bestDescendingCut) {
+          if (
+            bestCut === undefined ||
+            pointToBeWronglyClasifiedBestCut.length >
+              descendingCutWrongPointsCount.length
+          ) {
+            bestCut = bestDescendingCut;
+            pointToBeWronglyClasifiedBestCut = descendingCutWrongPointsCount;
+          }
+        }
+        if (bestAscendingCut) {
+          if (
+            bestCut === undefined ||
+            pointToBeWronglyClasifiedBestCut.length >
+              ascendingCutWrongPointsCount.length
+          ) {
+            bestCut = bestAscendingCut;
+            pointToBeWronglyClasifiedBestCut = ascendingCutWrongPointsCount;
+          }
+        }
+      }
+      if (bestCut) {
+        bestCut.points.push(...pointToBeWronglyClasifiedBestCut);
+        wronglyClasifiedPoints.push(...pointToBeWronglyClasifiedBestCut);
+      }
     }
+    /* ####################################### END  of cutting when there is no eazy cut */
 
     if (bestCut !== undefined) {
       cuts.push(bestCut.cut);
@@ -289,5 +476,5 @@ export const runClasifier = (data: DataContextType) => {
     }))
   );
   console.log(cuts);
-  return { newTable, cuts };
+  return { newTable, cuts, wronglyClasifiedPoints };
 };

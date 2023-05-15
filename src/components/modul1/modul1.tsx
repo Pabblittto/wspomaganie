@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { DataContext } from "../../Contexts/dataContext";
 import {
   Button,
@@ -18,9 +18,11 @@ import { RangeChanger } from "../shared/RangeChanger/RangeChanger";
 import { Histograms } from "../shared/Histograms/Histograms";
 import { Chart2D } from "../shared/Chart2D/Chart2D";
 import { runClasifier } from "../shared/clasifier";
+import { JSONTree } from "react-json-tree";
 
 export const Modul1 = () => {
   const dataContext = React.useContext(DataContext);
+  const [result, setResult] = useState<any>({});
 
   const onFileLoaded = (
     data: any[],
@@ -153,7 +155,12 @@ export const Modul1 = () => {
       />
       <h3>Chart 2D</h3>
       <Chart2D />
-      <Button onClick={() => runClasifier(dataContext)}> Klasyfikator</Button>
+      <Button onClick={() => setResult(runClasifier(dataContext))}>
+        Klasyfikator
+      </Button>
+      <div style={{ textAlign: "left" }}>
+        <JSONTree data={result} />
+      </div>
     </div>
   );
 };
